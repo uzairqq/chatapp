@@ -10,11 +10,12 @@
         }
         #container{
             width:700px;
-            margin 0 auto;
+            margin: 0 auto;
         }
 
         #chatWindow{
-            height:300px;
+            height:500px;
+            overflow-y: scroll;
         }
         #mainWrapper{
             display:none;
@@ -45,14 +46,13 @@
             background: #f4f4f4;
             padding:10px;
             margin-left:20px;
-        /*    display:none;*/
+            /*    display:none;*/
         }
 
         input{
             height:30px;
         }
     </style>
-
 </head>
 <body>
     <div id="container">
@@ -121,18 +121,30 @@
             });
 
 
+
+
         $messageForm.submit(function(event){
             event.preventDefault();
             socket.emit('send message',$message.val());
             $message.val('');
         });
 
-        socket.on('new message',function(data){
-            if(data.message != ""){
-                $chat.append('<strong>'+ data.user + '</strong>: '+data.message + '<br>');
+        socket.on('load messages',function(data){
+            for(var i = 0;i<data.length;i++){
+                displayMessages(data[i]);
             }
+
+
         });
 
+        socket.on('new message',function(data){
+            if(data.message != ""){
+                displayMessages(data);
+            }
+        });
+        function displayMessages(data){
+            $chat.append('<strong>'+ data.username + '</strong>: '+data.message + '<br>');
+        }
     });
 </script>
 </body>

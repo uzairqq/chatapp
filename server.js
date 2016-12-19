@@ -14,7 +14,7 @@ var usernames = [];
 
 server.listen(process.env.PORT || 3000);
 
-mongoose.connect('mongodb://localhost/chatapplication',function(error){
+mongoose.connect('mongodb://aj160:aj160@ds139288.mlab.com:39288/chatapplication',function(error){
     if(error) {console.log(error);}
     else {console.log('Connected to database');}
 });
@@ -32,6 +32,16 @@ app.get('/',function(req,res){
 });
 
 io.sockets.on('connection',function(socket){
+
+    //load previous messages
+    var query =  Chat.find({});
+    query.sort('-timeSent').limit(10).exec(
+    function(error,data){
+        if(error) throw error;
+        console.log('sending old messages');
+        socket.emit('load messages',data);
+    });
+
 
    //new user
     socket.on('new user',function(data,ob){
@@ -58,7 +68,7 @@ io.sockets.on('connection',function(socket){
         newMessage.save(function(error){
             if(error) throw error;
 
-        io.sockets.emit('new message',{message:data , user:socket.username});
+        io.sockets.emit('new message',{message:data , username:socket.username});
             console.log(socket.username + ": " + data);
         });
 
